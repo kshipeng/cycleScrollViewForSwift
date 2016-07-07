@@ -132,7 +132,7 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         setupCollectionView()
     }
     //MARK: 一些设置
-    func configureLastArray(arr:[String]) -> Void {
+    private func configureLastArray(arr:[String]) -> Void {
         urlArray.removeAllObjects()
         urlArray.addObjectsFromArray(arr)
         if arr.count > 1 {
@@ -146,7 +146,7 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         }
     }
     //MARK: 创建集合视图
-    func setupCollectionView() {
+    private func setupCollectionView() {
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.minimumLineSpacing = 0.0;
         flowLayout.scrollDirection = .Horizontal
@@ -170,7 +170,7 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         createPageControl(urlArray.count - 2)
     }
     //MARK: 分页控件
-    func createPageControl(pages: Int) {
+    private func createPageControl(pages: Int) {
         pageControl = UIPageControl(frame: CGRectMake((self.bounds.width - 100)/2, self.bounds.height-20, 100, 20))
         pageControl.currentPageIndicatorTintColor = UIColor.redColor()
         pageControl.pageIndicatorTintColor = UIColor.whiteColor()
@@ -179,14 +179,14 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         self.addSubview(pageControl)
     }
     //MARK: 自动滚动
-    func addTimer(interval: Double) {
+    private func addTimer(interval: Double) {
         self.timer.invalidate()
         let timer = NSTimer(timeInterval: self.autoScrollTimeInterval, target: self, selector: #selector(self.changePicture), userInfo: nil, repeats: true)
         NSRunLoop.mainRunLoop().addTimer(timer, forMode: NSRunLoopCommonModes)
         self.timer = timer
     }
     
-    func changePicture() {
+    @objc private func changePicture() {
         guard urlArray.count > 1 else { return }
         var toIndex: NSIndexPath!        
         currentItem += 1
@@ -201,7 +201,7 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         pageControl.currentPage = currentItem-1
     }
     
-    func toFirstItem() {
+    @objc private func toFirstItem() {
         let toIndex = NSIndexPath(forItem: 1, inSection: 0)
         self.mainCollectionView.scrollToItemAtIndexPath(toIndex, atScrollPosition: .None, animated: false)
     }
