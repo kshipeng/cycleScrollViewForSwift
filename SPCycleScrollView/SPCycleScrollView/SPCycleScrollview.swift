@@ -126,6 +126,7 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
     init(frame: CGRect, placeholderImage: UIImage, delegate: SPCycleScrollViewDelegate) {
         super.init(frame: frame)
         self.delegate = delegate
+        self.imagetype = imageType.NetWork
         self.placeholderImage = placeholderImage
         self.currentIndex = NSIndexPath(forItem: 1, inSection: 0)
         setupCollectionView()
