@@ -307,8 +307,10 @@ class SPCollectionViewCell: UICollectionViewCell {
                 imageView.image = UIImage(named: self.imageStr as String)
             }
             guard imagetype == imageType.NetWork else {return}
-            SPNetworking().requsetWithPath(imageStr as String) {
-                self.imageView.image = UIImage(data: $0)
+            SPNetworking().requsetWithPath(imageStr as String) { (cdata) in
+                let img = UIImage(data: cdata)
+                print(img)
+                self.imageView.image = UIImage(data: cdata)
             }
         }
     }
@@ -378,8 +380,8 @@ class SPCache: NSCache {
     static let shareCache = SPCache()
     private override init() {
         super.init()
-        self.countLimit = 10
-        self.totalCostLimit = 50
+//        self.countLimit = 10
+//        self.totalCostLimit = 50
     }
 }
 
