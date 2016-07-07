@@ -119,7 +119,12 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         self.delegate = delegate
         imagetype = imageType.Loacl
         configureLastArray(localImageArray)
-        self.currentIndex = NSIndexPath(forItem: 1, inSection: 0)
+        if urlArray.count>1 {
+            self.currentIndex = NSIndexPath(forItem: 1, inSection: 0)
+        }else{
+            self.currentIndex = NSIndexPath(forItem: 0, inSection: 0)
+
+        }
         setupCollectionView()
     }
     
@@ -128,7 +133,11 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         self.delegate = delegate
         self.imagetype = imageType.NetWork
         self.placeholderImage = placeholderImage
-        self.currentIndex = NSIndexPath(forItem: 1, inSection: 0)
+        if urlArray.count>1 {
+            self.currentIndex = NSIndexPath(forItem: 1, inSection: 0)
+        }else{
+            self.currentIndex = NSIndexPath(forItem: 0, inSection: 0)
+        }
         setupCollectionView()
     }
     //MARK: 一些设置
@@ -207,7 +216,7 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         self.mainCollectionView.frame = self.bounds
         self.flowLayout.itemSize = self.bounds.size
         self.mainCollectionView.reloadData()
-        if self.mainCollectionView != nil && self.currentIndex != nil{
+        if self.mainCollectionView != nil && self.currentIndex != nil && urlArray.count > 1{
             self.mainCollectionView.scrollToItemAtIndexPath(currentIndex, atScrollPosition: .None, animated: false)
         }
     }
@@ -217,6 +226,9 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
     }
     // MARK: 集合视图代理方法
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if placeholderImage != nil && urlArray.count == 0 {
+            return 1
+        }
         return urlArray.count;
     }
     
@@ -228,7 +240,10 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         let cell = collectionView.dequeueReusableCellWithReuseIdentifier("cell", forIndexPath: indexPath) as! SPCollectionViewCell
         cell.imagetype = self.imagetype
         cell.placeholderImage = self.placeholderImage
-        cell.imageStr = urlArray[indexPath.item] as? NSString
+        if urlArray.count != 0 {
+            cell.imageStr = urlArray[indexPath.item] as? NSString
+
+        }
         return cell
     }
     
@@ -343,15 +358,18 @@ typealias successBlock = (data: NSData) ->Void
 class SPNetworking: NSObject, NSURLSessionDelegate, NSURLSessionDataDelegate {
     private var successful: successBlock!
     private var urlKey: String!
+    private var myData = NSMutableData()
+    private var muData: NSMutableData!
     func requsetWithPath(path: String, successed: successBlock) ->(SPNetworking){
         successful = successed
-        if (SPCache.shareCache.objectForKey(path) != nil && successful != nil) {
+        if (SPCache.shareCache.objectForKey(path) != nil && successful != nil && (SPCache.shareCache.objectForKey(path) as! NSData).length != 0) {
             let cdata = SPCache.shareCache.objectForKey(path) as! NSData
             successful(data: cdata)
             return self
         }
         
         self.urlKey = path
+        muData = NSMutableData()
         let url = NSURL(string: path)
         let config = NSURLSessionConfiguration.defaultSessionConfiguration()
         let session = NSURLSession(configuration: config, delegate: self, delegateQueue: NSOperationQueue.mainQueue())
@@ -361,13 +379,16 @@ class SPNetworking: NSObject, NSURLSessionDelegate, NSURLSessionDataDelegate {
         return self
     }
     func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
-        let muData = NSMutableData()
         muData.appendData(data)
+        self.myData = muData
+        
+    }
+    
+    func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
         if successful != nil {
-            successful(data: muData)
+            successful(data: myData)
         }
-        SPCache.shareCache.setObject(muData, forKey: self.urlKey)
-        session.finishTasksAndInvalidate()
+        SPCache.shareCache.setObject(myData, forKey: self.urlKey)
     }
     
     func successed(success: successBlock) {
