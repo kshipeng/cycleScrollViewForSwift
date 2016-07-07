@@ -119,12 +119,7 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         self.delegate = delegate
         imagetype = imageType.Loacl
         configureLastArray(localImageArray)
-        if urlArray.count>1 {
-            self.currentIndex = NSIndexPath(forItem: 1, inSection: 0)
-        }else{
-            self.currentIndex = NSIndexPath(forItem: 0, inSection: 0)
 
-        }
         setupCollectionView()
     }
     
@@ -133,11 +128,7 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         self.delegate = delegate
         self.imagetype = imageType.NetWork
         self.placeholderImage = placeholderImage
-        if urlArray.count>1 {
-            self.currentIndex = NSIndexPath(forItem: 1, inSection: 0)
-        }else{
-            self.currentIndex = NSIndexPath(forItem: 0, inSection: 0)
-        }
+
         setupCollectionView()
     }
     //MARK: 一些设置
@@ -147,6 +138,11 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         if arr.count > 1 {
             urlArray.insertObject(arr.last!, atIndex: 0)
             urlArray.addObject(arr.first!)
+            self.currentIndex = NSIndexPath(forItem: 1, inSection: 0)
+
+        }else{
+            self.currentIndex = NSIndexPath(forItem: 0, inSection: 0)
+
         }
     }
     //MARK: 创建集合视图
@@ -242,7 +238,6 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         cell.placeholderImage = self.placeholderImage
         if urlArray.count != 0 {
             cell.imageStr = urlArray[indexPath.item] as? NSString
-
         }
         return cell
     }
@@ -292,7 +287,10 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
     func scrollViewDidScroll(scrollView: UIScrollView) {
         
     }
-    
+    //MARK: 清除图片缓存
+    func clearCache() {
+        SPCache.shareCache.removeAllObjects()
+    }
     /*
     // Only override drawRect: if you perform custom drawing.
     // An empty implementation adversely affects performance during animation.
@@ -324,8 +322,10 @@ class SPCollectionViewCell: UICollectionViewCell {
             guard imagetype == imageType.NetWork else {return}
             SPNetworking().requsetWithPath(imageStr as String) { (cdata) in
                 let img = UIImage(data: cdata)
-                print(img)
-                self.imageView.image = UIImage(data: cdata)
+                self.imageView.image = img
+                if img == nil {
+                    self.imageView.image = self.placeholderImage
+                }
             }
         }
     }
