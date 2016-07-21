@@ -205,7 +205,7 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         let toIndex = NSIndexPath(forItem: 1, inSection: 0)
         self.mainCollectionView.scrollToItemAtIndexPath(toIndex, atScrollPosition: .None, animated: false)
     }
-    //MARK:
+    //MARK: 子视图布局
     override func layoutSubviews() {
         super.layoutSubviews()
         
