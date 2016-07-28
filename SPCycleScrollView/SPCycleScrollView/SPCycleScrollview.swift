@@ -302,7 +302,7 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
 }
 
 //MARK: cell
-class SPCollectionViewCell: UICollectionViewCell {
+private class SPCollectionViewCell: UICollectionViewCell {
     private var imageView = UIImageView()
     
     var imagetype: imageType!
@@ -355,7 +355,7 @@ enum imageType {
 
 //MARK: 网络请求
 typealias successBlock = (data: NSData) ->Void
-class SPNetworking: NSObject, NSURLSessionDelegate, NSURLSessionDataDelegate {
+private class SPNetworking: NSObject, NSURLSessionDelegate, NSURLSessionDataDelegate {
     private var successful: successBlock!
     private var urlKey: String!
     private var myData = NSMutableData()
@@ -378,13 +378,13 @@ class SPNetworking: NSObject, NSURLSessionDelegate, NSURLSessionDataDelegate {
         
         return self
     }
-    func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
+    @objc func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
         muData.appendData(data)
         self.myData = muData
         
     }
     
-    func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
+    @objc func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
         if successful != nil {
             successful(data: myData)
         }
@@ -397,7 +397,7 @@ class SPNetworking: NSObject, NSURLSessionDelegate, NSURLSessionDataDelegate {
 }
 
 //MARK: 图片数据缓存
-class SPCache: NSCache {
+private class SPCache: NSCache {
     static let shareCache = SPCache()
     private override init() {
         super.init()
