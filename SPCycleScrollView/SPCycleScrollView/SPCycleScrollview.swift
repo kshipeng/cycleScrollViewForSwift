@@ -40,14 +40,14 @@
 import UIKit
 
 @objc protocol SPCycleScrollViewDelegate: NSObjectProtocol{
-    optional func spcycleScrollView(cycleScrollView: SPCycleScrollview, didSelectItemAtIndex index: Int) -> Void
+    @objc optional func spcycleScrollView(_ cycleScrollView: SPCycleScrollview, didSelectItemAtIndex index: Int) -> Void
 }
-typealias selectBlock = (index: Int, cycleScrollView: SPCycleScrollview) -> Void
+typealias selectBlock = (_ index: Int, _ cycleScrollView: SPCycleScrollview) -> Void
 
 class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectionViewDelegate, UICollectionViewDataSource{
 
     var delegate: SPCycleScrollViewDelegate!
-    private var didSelectItemAtIndex: selectBlock?
+    fileprivate var didSelectItemAtIndex: selectBlock?
     var autoScrollTimeInterval = 2.0 {
         didSet{
             if self.autoScroll {
@@ -66,7 +66,7 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
     }
     var imageUrlGroup: [String]! {
         didSet{
-            imagetype = imageType.NetWork
+            imagetype = imageType.netWork
             configureLastArray(imageUrlGroup)
             self.mainCollectionView.reloadData()
             pageControl.numberOfPages = imageUrlGroup.count
@@ -75,7 +75,7 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
     
     var imageLocalGroup: [String]! {
         didSet{
-            imagetype = imageType.Loacl
+            imagetype = imageType.loacl
             configureLastArray(imageLocalGroup)
             self.mainCollectionView.reloadData()
             pageControl.numberOfPages = imageLocalGroup.count
@@ -84,40 +84,40 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
     //MARK: 分页控件的一些设置
     var showPageControl = true {
         didSet {
-            pageControl.hidden = true
+            pageControl.isHidden = true
             if showPageControl == true {
-                pageControl.hidden = false
+                pageControl.isHidden = false
             }
         }
     }
-    var currentPageTintColor = UIColor.redColor() {
+    var currentPageTintColor = UIColor.red {
         didSet {
             pageControl.currentPageIndicatorTintColor = currentPageTintColor
         }
     }
-    var pageControlIndicatorTintColor = UIColor.whiteColor() {
+    var pageControlIndicatorTintColor = UIColor.white {
         didSet {
             pageControl.pageIndicatorTintColor = pageControlIndicatorTintColor
         }
     }
     
     //MARK: 私有变量
-    private var placeholderImage: UIImage!
-    private var urlArray = NSMutableArray()
-    private var mainCollectionView: UICollectionView!
-    private var currentItem = 1
-    private var timer = NSTimer()
-    private var flowLayout: UICollectionViewFlowLayout!
-    private var currentIndex: NSIndexPath!
-    private var selectIndexPath: NSIndexPath!
-    private var imagetype: imageType!
-    private var pageControl: UIPageControl!
+    fileprivate var placeholderImage: UIImage!
+    fileprivate var urlArray = NSMutableArray()
+    fileprivate var mainCollectionView: UICollectionView!
+    fileprivate var currentItem = 1
+    fileprivate var timer = Timer()
+    fileprivate var flowLayout: UICollectionViewFlowLayout!
+    fileprivate var currentIndex: IndexPath!
+    fileprivate var selectIndexPath: IndexPath!
+    fileprivate var imagetype: imageType!
+    fileprivate var pageControl: UIPageControl!
     //MARK: 重写init
     init(frame: CGRect, localImageArray: [String], delegate: SPCycleScrollViewDelegate) {
         super.init(frame: frame)
         
         self.delegate = delegate
-        imagetype = imageType.Loacl
+        imagetype = imageType.loacl
         configureLastArray(localImageArray)
 
         setupCollectionView()
@@ -126,84 +126,84 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
     init(frame: CGRect, placeholderImage: UIImage, delegate: SPCycleScrollViewDelegate) {
         super.init(frame: frame)
         self.delegate = delegate
-        self.imagetype = imageType.NetWork
+        self.imagetype = imageType.netWork
         self.placeholderImage = placeholderImage
 
         setupCollectionView()
     }
     //MARK: 一些设置
-    private func configureLastArray(arr:[String]) -> Void {
+    fileprivate func configureLastArray(_ arr:[String]) -> Void {
         urlArray.removeAllObjects()
-        urlArray.addObjectsFromArray(arr)
+        urlArray.addObjects(from: arr)
         if arr.count > 1 {
-            urlArray.insertObject(arr.last!, atIndex: 0)
-            urlArray.addObject(arr.first!)
-            self.currentIndex = NSIndexPath(forItem: 1, inSection: 0)
+            urlArray.insert(arr.last!, at: 0)
+            urlArray.add(arr.first!)
+            self.currentIndex = IndexPath(item: 1, section: 0)
 
         }else{
-            self.currentIndex = NSIndexPath(forItem: 0, inSection: 0)
+            self.currentIndex = IndexPath(item: 0, section: 0)
 
         }
     }
     //MARK: 创建集合视图
-    private func setupCollectionView() {
+    fileprivate func setupCollectionView() {
         let flowLayout = UICollectionViewFlowLayout()
         flowLayout.minimumLineSpacing = 0.0;
-        flowLayout.scrollDirection = .Horizontal
+        flowLayout.scrollDirection = .horizontal
         self.flowLayout = flowLayout
         
         let mainCollectionView = UICollectionView(frame: self.bounds, collectionViewLayout: flowLayout)
-        mainCollectionView.backgroundColor = UIColor.whiteColor()
+        mainCollectionView.backgroundColor = UIColor.white
         mainCollectionView.showsVerticalScrollIndicator = false
         mainCollectionView.showsHorizontalScrollIndicator = false
-        mainCollectionView.pagingEnabled = true
-        mainCollectionView.registerClass(SPCollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        mainCollectionView.isPagingEnabled = true
+        mainCollectionView.register(SPCollectionViewCell.self, forCellWithReuseIdentifier: "cell")
         mainCollectionView.delegate = self
         mainCollectionView.dataSource = self
         self.addSubview(mainCollectionView)
         if urlArray.count>1 && self.autoScroll == true{
-            let indexPath = NSIndexPath(forItem: 1, inSection: 0)
-            mainCollectionView.scrollToItemAtIndexPath(indexPath, atScrollPosition: .None, animated: false)
+            let indexPath = IndexPath(item: 1, section: 0)
+            mainCollectionView.scrollToItem(at: indexPath, at: UICollectionViewScrollPosition(), animated: false)
             addTimer(self.autoScrollTimeInterval)
         }
         self.mainCollectionView = mainCollectionView
         createPageControl(urlArray.count - 2)
     }
     //MARK: 分页控件
-    private func createPageControl(pages: Int) {
-        pageControl = UIPageControl(frame: CGRectMake((self.bounds.width - 100)/2, self.bounds.height-20, 100, 20))
-        pageControl.currentPageIndicatorTintColor = UIColor.redColor()
-        pageControl.pageIndicatorTintColor = UIColor.whiteColor()
+    fileprivate func createPageControl(_ pages: Int) {
+        pageControl = UIPageControl(frame: CGRect(x: (self.bounds.width - 100)/2, y: self.bounds.height-20, width: 100, height: 20))
+        pageControl.currentPageIndicatorTintColor = UIColor.red
+        pageControl.pageIndicatorTintColor = UIColor.white
         pageControl.numberOfPages = pages
         
         self.addSubview(pageControl)
     }
     //MARK: 自动滚动
-    private func addTimer(interval: Double) {
+    fileprivate func addTimer(_ interval: Double) {
         self.timer.invalidate()
-        let timer = NSTimer(timeInterval: self.autoScrollTimeInterval, target: self, selector: #selector(self.changePicture), userInfo: nil, repeats: true)
-        NSRunLoop.mainRunLoop().addTimer(timer, forMode: NSRunLoopCommonModes)
+        let timer = Timer(timeInterval: self.autoScrollTimeInterval, target: self, selector: #selector(self.changePicture), userInfo: nil, repeats: true)
+        RunLoop.main.add(timer, forMode: RunLoopMode.commonModes)
         self.timer = timer
     }
     
-    @objc private func changePicture() {
+    @objc fileprivate func changePicture() {
         guard urlArray.count > 1 else { return }
-        var toIndex: NSIndexPath!        
+        var toIndex: IndexPath!        
         currentItem += 1
         if currentItem <= urlArray.count-1 {
-            toIndex = NSIndexPath(forItem: currentItem, inSection: 0)
-            self.mainCollectionView.scrollToItemAtIndexPath(toIndex, atScrollPosition: .None, animated: true)
+            toIndex = IndexPath(item: currentItem, section: 0)
+            self.mainCollectionView.scrollToItem(at: toIndex, at: UICollectionViewScrollPosition(), animated: true)
         }
         if currentItem == urlArray.count - 1 {
             currentItem = 1
-            performSelector(#selector(self.toFirstItem), withObject: nil, afterDelay: 0.3)
+            perform(#selector(self.toFirstItem), with: nil, afterDelay: 0.3)
         }
         pageControl.currentPage = currentItem-1
     }
     
-    @objc private func toFirstItem() {
-        let toIndex = NSIndexPath(forItem: 1, inSection: 0)
-        self.mainCollectionView.scrollToItemAtIndexPath(toIndex, atScrollPosition: .None, animated: false)
+    @objc fileprivate func toFirstItem() {
+        let toIndex = IndexPath(item: 1, section: 0)
+        self.mainCollectionView.scrollToItem(at: toIndex, at: UICollectionViewScrollPosition(), animated: false)
     }
     //MARK: 子视图布局
     override func layoutSubviews() {
@@ -213,7 +213,7 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         self.flowLayout.itemSize = self.bounds.size
         self.mainCollectionView.reloadData()
         if self.mainCollectionView != nil && self.currentIndex != nil && urlArray.count > 1{
-            self.mainCollectionView.scrollToItemAtIndexPath(currentIndex, atScrollPosition: .None, animated: false)
+            self.mainCollectionView.scrollToItem(at: currentIndex, at: UICollectionViewScrollPosition(), animated: false)
         }
     }
     
@@ -221,57 +221,57 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         fatalError("init(coder:) has not been implemented")
     }
     // MARK: 集合视图代理方法
-    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if placeholderImage != nil && urlArray.count == 0 {
             return 1
         }
         return urlArray.count;
     }
     
-    func collectionView(collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAtIndexPath indexPath: NSIndexPath) -> CGSize {
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
         return self.bounds.size
     }
     
-    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithReuseIdentifier("cell", forIndexPath: indexPath) as! SPCollectionViewCell
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! SPCollectionViewCell
         cell.imagetype = self.imagetype
         cell.placeholderImage = self.placeholderImage
         if urlArray.count != 0 {
-            cell.imageStr = urlArray[indexPath.item] as? NSString
+            cell.imageStr = urlArray[(indexPath as NSIndexPath).item] as? NSString
         }
         return cell
     }
     
-    func collectionView(collectionView: UICollectionView, didSelectItemAtIndexPath indexPath: NSIndexPath) {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         self.selectIndexPath = indexPath
         if self.delegate != nil {
-            self.delegate.spcycleScrollView!(self, didSelectItemAtIndex: urlArray.count>1 ? indexPath.row - 1 : indexPath.item)
+            self.delegate.spcycleScrollView!(self, didSelectItemAtIndex: urlArray.count>1 ? (indexPath as NSIndexPath).row - 1 : (indexPath as NSIndexPath).item)
         }
         
         if didSelectItemAtIndex != nil {
-            didSelectItemAtIndex!(index: urlArray.count>1 ? indexPath.item - 1 : indexPath.item, cycleScrollView: self)
+            didSelectItemAtIndex!(urlArray.count>1 ? (indexPath as NSIndexPath).item - 1 : (indexPath as NSIndexPath).item, self)
         }
     }
     
-    func didSelectItemAtIndex(block: selectBlock) -> Void {
+    func didSelectItemAtIndex(_ block: @escaping selectBlock) -> Void {
         didSelectItemAtIndex = block
     }
     
     // MARK: 滚动视图代理方法
-    func scrollViewDidEndDecelerating(scrollView: UIScrollView) {
-        let lastIndex: NSIndexPath = mainCollectionView.indexPathsForVisibleItems().last!
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        let lastIndex: IndexPath = mainCollectionView.indexPathsForVisibleItems.last!
         self.currentIndex = lastIndex
-        var toIndex: NSIndexPath!
-        currentItem = lastIndex.item
-        if lastIndex.item == urlArray.count - 1 {
-            toIndex = NSIndexPath(forItem: 1, inSection: 0)
-            self.mainCollectionView.scrollToItemAtIndexPath(toIndex, atScrollPosition: .None, animated: false)
+        var toIndex: IndexPath!
+        currentItem = (lastIndex as NSIndexPath).item
+        if (lastIndex as NSIndexPath).item == urlArray.count - 1 {
+            toIndex = IndexPath(item: 1, section: 0)
+            self.mainCollectionView.scrollToItem(at: toIndex, at: UICollectionViewScrollPosition(), animated: false)
             currentItem = toIndex.item
             currentIndex = toIndex
-        }else if lastIndex.item == 0 {
+        }else if (lastIndex as NSIndexPath).item == 0 {
             let rowForItem = urlArray.count - 2
-            toIndex = NSIndexPath(forItem: rowForItem, inSection: 0)
-            self.mainCollectionView.scrollToItemAtIndexPath(toIndex, atScrollPosition: .None, animated: false)
+            toIndex = IndexPath(item: rowForItem, section: 0)
+            self.mainCollectionView.scrollToItem(at: toIndex, at: UICollectionViewScrollPosition(), animated: false)
             currentItem = toIndex.item
             currentIndex = toIndex
         }
@@ -280,11 +280,11 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
         addTimer(self.autoScrollTimeInterval)
     }
     
-    func scrollViewWillBeginDragging(scrollView: UIScrollView) {
+    func scrollViewWillBeginDragging(_ scrollView: UIScrollView) {
         self.timer.invalidate()
     }
     
-    func scrollViewDidScroll(scrollView: UIScrollView) {
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
     }
     //MARK: 清除图片缓存
@@ -303,12 +303,12 @@ class SPCycleScrollview: UIView, UICollectionViewDelegateFlowLayout, UICollectio
 
 //MARK: cell
 private class SPCollectionViewCell: UICollectionViewCell {
-    private var imageView = UIImageView()
+    fileprivate var imageView = UIImageView()
     
     var imagetype: imageType!
     var placeholderImage: UIImage! {
         didSet{
-            guard placeholderImage != nil && imagetype == imageType.NetWork else {return}
+            guard placeholderImage != nil && imagetype == imageType.netWork else {return}
             imageView.image = placeholderImage
         }
     }
@@ -316,10 +316,10 @@ private class SPCollectionViewCell: UICollectionViewCell {
     var imageStr: NSString! {
         didSet {
             guard imagetype != nil else {return}
-            if imagetype == imageType.Loacl {
+            if imagetype == imageType.loacl {
                 imageView.image = UIImage(named: self.imageStr as String)
             }
-            guard imagetype == imageType.NetWork else {return}
+            guard imagetype == imageType.netWork else {return}
             SPNetworking().requsetWithPath(imageStr as String) { (cdata) in
                 let img = UIImage(data: cdata)
                 self.imageView.image = img
@@ -349,57 +349,58 @@ private class SPCollectionViewCell: UICollectionViewCell {
 
 //MARK: 图片类型(本地or网络)
 enum imageType {
-    case Loacl
-    case NetWork
+    case loacl
+    case netWork
 }
 
 //MARK: 网络请求
-typealias successBlock = (data: NSData) ->Void
-private class SPNetworking: NSObject, NSURLSessionDelegate, NSURLSessionDataDelegate {
-    private var successful: successBlock!
-    private var urlKey: String!
-    private var myData = NSMutableData()
-    private var muData: NSMutableData!
-    func requsetWithPath(path: String, successed: successBlock) ->(SPNetworking){
+typealias successBlock = (_ data: Data) ->Void
+private class SPNetworking: NSObject, URLSessionDelegate, URLSessionDataDelegate {
+    fileprivate var successful: successBlock!
+    fileprivate var urlKey: String!
+    fileprivate var myData = NSMutableData()
+    fileprivate var muData: NSMutableData!
+    @discardableResult
+    func requsetWithPath(_ path: String, successed: @escaping successBlock) ->(SPNetworking){
         successful = successed
-        if (SPCache.shareCache.objectForKey(path) != nil && successful != nil && (SPCache.shareCache.objectForKey(path) as! NSData).length != 0) {
-            let cdata = SPCache.shareCache.objectForKey(path) as! NSData
-            successful(data: cdata)
+        if (SPCache.shareCache.object(forKey: path as AnyObject) != nil && successful != nil && (SPCache.shareCache.object(forKey: path as AnyObject) as! Data).count != 0) {
+            let cdata = SPCache.shareCache.object(forKey: path as AnyObject) as! Data
+            successful(cdata)
             return self
         }
         
         self.urlKey = path
         muData = NSMutableData()
-        let url = NSURL(string: path)
-        let config = NSURLSessionConfiguration.defaultSessionConfiguration()
-        let session = NSURLSession(configuration: config, delegate: self, delegateQueue: NSOperationQueue.mainQueue())
-        let task = session.dataTaskWithURL(url!)
+        let url = URL(string: path)
+        let config = URLSessionConfiguration.default
+        let session = Foundation.URLSession(configuration: config, delegate: self, delegateQueue: OperationQueue.main)
+        let task = session.dataTask(with: url!)
         task.resume()
         
         return self
     }
-    @objc func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData) {
-        muData.appendData(data)
+    @objc func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        muData.append(data)
         self.myData = muData
         
     }
     
-    @objc func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?) {
+    @objc func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if successful != nil {
-            successful(data: myData)
+            successful(myData as Data)
         }
-        SPCache.shareCache.setObject(myData, forKey: self.urlKey)
+        SPCache.shareCache.setObject(myData, forKey: self.urlKey as AnyObject)
     }
     
-    func successed(success: successBlock) {
+    func successed(_ success: @escaping successBlock) {
         successful = success
     }
 }
 
 //MARK: 图片数据缓存
-private class SPCache: NSCache {
+private class SPCache: NSCache<AnyObject, AnyObject> {
     static let shareCache = SPCache()
-    private override init() {
+    fileprivate override init() {
         super.init()
 //        self.countLimit = 10
 //        self.totalCostLimit = 50

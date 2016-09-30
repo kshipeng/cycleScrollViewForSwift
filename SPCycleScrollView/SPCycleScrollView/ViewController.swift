@@ -14,7 +14,7 @@ class ViewController: UIViewController, SPCycleScrollViewDelegate{
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        cycleView = SPCycleScrollview(frame: CGRectMake(0, 20, self.view.frame.size.width, 175), placeholderImage: UIImage(named: "2")!, delegate: self)
+        cycleView = SPCycleScrollview(frame: CGRect(x: 0, y: 20, width: self.view.frame.size.width, height: 175), placeholderImage: UIImage(named: "2")!, delegate: self)
         cycleView.autoScroll = true //是否自动滚动
         cycleView.showPageControl = true //是否显示分页控件
         cycleView.imageUrlGroup = ["http://pic1.zhimg.com/05a55004e42ef9d778d502c96bc198a4.jpg", "http://pic3.zhimg.com/cd1240013a1c68392c81ba2df54ebb52.jpg"] //网络图片地址数组
@@ -34,10 +34,10 @@ class ViewController: UIViewController, SPCycleScrollViewDelegate{
         //performSelector(#selector(self.changeFrame), withObject: nil, afterDelay: 2)
     }
     func changeFrame() {
-        cycleView.frame = CGRectMake(30, 0, self.view.frame.size.width-60, 200)
+        cycleView.frame = CGRect(x: 30, y: 0, width: self.view.frame.size.width-60, height: 200)
         cycleView.imageLocalGroup = ["3","4"]
     }
-    func spcycleScrollView(cycleScrollView: SPCycleScrollview, didSelectItemAtIndex index: Int) {
+    func spcycleScrollView(_ cycleScrollView: SPCycleScrollview, didSelectItemAtIndex index: Int) {
         print("代理\(index)")
     }
     override func didReceiveMemoryWarning() {
